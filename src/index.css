@@ -2,41 +2,74 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* Cyberpunk Hackathon Timer Design System */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap');
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Cyberpunk Color Palette */
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Primary - Electric Blue */
+    --primary: 200 100% 50%;
+    --primary-foreground: 240 10% 3.9%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Secondary - Neon Green */
+    --secondary: 120 100% 50%;
+    --secondary-foreground: 240 10% 3.9%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    /* Accent - Purple Neon */
+    --accent: 280 100% 70%;
+    --accent-foreground: 240 10% 3.9%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    /* Muted - Dark Purple */
+    --muted: 240 10% 15%;
+    --muted-foreground: 240 5% 65%;
 
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 0 0% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 240 10% 15%;
+    --input: 240 10% 15%;
+    --ring: 200 100% 50%;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
+
+    /* Custom Hackathon Colors */
+    --neon-cyan: 180 100% 50%;
+    --neon-pink: 330 100% 70%;
+    --neon-orange: 30 100% 60%;
+    --electric-purple: 270 100% 70%;
+    --matrix-green: 120 100% 40%;
+
+    /* Gradients */
+    --gradient-cyber: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)));
+    --gradient-matrix: linear-gradient(180deg, hsl(var(--matrix-green)), hsl(var(--neon-cyan)));
+    --gradient-neon: linear-gradient(45deg, hsl(var(--neon-pink)), hsl(var(--neon-orange)));
+    --gradient-background: radial-gradient(ellipse at center, hsl(240 10% 8%) 0%, hsl(240 10% 3.9%) 100%);
+
+    /* Shadows & Glows */
+    --glow-primary: 0 0 20px hsl(var(--primary) / 0.5);
+    --glow-secondary: 0 0 20px hsl(var(--secondary) / 0.5);
+    --glow-accent: 0 0 20px hsl(var(--accent) / 0.5);
+    --glow-intense: 0 0 40px hsl(var(--primary) / 0.8), 0 0 80px hsl(var(--primary) / 0.4);
+
+    /* Typography */
+    --font-mono: 'Orbitron', monospace;
+    --font-sans: 'Inter', sans-serif;
+
+    /* Animations */
+    --transition-cyber: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-glow: all 0.5s ease-in-out;
+
+    --radius: 0.75rem;
 
     --sidebar-background: 0 0% 98%;
 
@@ -100,6 +133,162 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans;
+    background: var(--gradient-background);
+    min-height: 100vh;
+  }
+}
+
+@layer components {
+  /* Timer Display Styles */
+  .timer-digit {
+    @apply font-mono font-black text-8xl md:text-9xl lg:text-[12rem];
+    background: var(--gradient-cyber);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: var(--glow-primary);
+    filter: drop-shadow(0 0 20px hsl(var(--primary) / 0.5));
+  }
+
+  .timer-separator {
+    @apply font-mono font-black text-6xl md:text-7xl lg:text-8xl text-primary;
+    text-shadow: var(--glow-primary);
+    animation: pulse-glow 2s ease-in-out infinite alternate;
+  }
+
+  .timer-label {
+    @apply font-sans text-sm md:text-base lg:text-lg text-muted-foreground uppercase tracking-widest;
+  }
+
+  /* Glow Effects */
+  .glow-primary {
+    box-shadow: var(--glow-primary);
+  }
+
+  .glow-secondary {
+    box-shadow: var(--glow-secondary);
+  }
+
+  .glow-accent {
+    box-shadow: var(--glow-accent);
+  }
+
+  .glow-intense {
+    box-shadow: var(--glow-intense);
+  }
+
+  /* Cyberpunk Card */
+  .cyber-card {
+    @apply bg-card/80 backdrop-blur-md border border-primary/20 rounded-xl;
+    background: linear-gradient(135deg, hsl(var(--card) / 0.8), hsl(var(--muted) / 0.3));
+    box-shadow: 
+      0 0 20px hsl(var(--primary) / 0.1),
+      inset 0 1px 0 hsl(var(--primary) / 0.2);
+  }
+
+  /* Neon Button */
+  .neon-button {
+    @apply relative px-8 py-4 bg-transparent border-2 border-primary text-primary font-semibold uppercase tracking-wide;
+    @apply hover:bg-primary hover:text-primary-foreground transition-all duration-300;
+    @apply hover:shadow-[0_0_30px_hsl(var(--primary)/0.8)];
+    background: linear-gradient(135deg, transparent 0%, hsl(var(--primary) / 0.1) 100%);
+  }
+
+  /* Motivational Text */
+  .motivation-text {
+    @apply text-xl md:text-2xl lg:text-3xl font-bold;
+    background: var(--gradient-neon);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: pulse-color 3s ease-in-out infinite;
+  }
+
+  /* Grid Pattern Background */
+  .cyber-grid {
+    background-image: 
+      linear-gradient(hsl(var(--primary) / 0.1) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(var(--primary) / 0.1) 1px, transparent 1px);
+    background-size: 50px 50px;
+    animation: grid-move 20s linear infinite;
+  }
+
+  /* Particle Effect */
+  .particle {
+    @apply absolute w-1 h-1 bg-primary rounded-full;
+    animation: float 6s ease-in-out infinite;
+  }
+}
+
+@layer utilities {
+  /* Animations */
+  @keyframes pulse-glow {
+    0% { 
+      text-shadow: 0 0 20px hsl(var(--primary) / 0.5);
+      transform: scale(1);
+    }
+    100% { 
+      text-shadow: 0 0 40px hsl(var(--primary) / 0.8), 0 0 60px hsl(var(--primary) / 0.4);
+      transform: scale(1.05);
+    }
+  }
+
+  @keyframes pulse-color {
+    0%, 100% { filter: hue-rotate(0deg); }
+    50% { filter: hue-rotate(30deg); }
+  }
+
+  @keyframes grid-move {
+    0% { transform: translate(0, 0); }
+    100% { transform: translate(50px, 50px); }
+  }
+
+  @keyframes float {
+    0%, 100% { 
+      transform: translateY(0px) translateX(0px);
+      opacity: 0;
+    }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    50% { 
+      transform: translateY(-100px) translateX(50px);
+      opacity: 0.8;
+    }
+  }
+
+  @keyframes milestone-pulse {
+    0% { transform: scale(1); box-shadow: var(--glow-primary); }
+    50% { transform: scale(1.1); box-shadow: var(--glow-intense); }
+    100% { transform: scale(1); box-shadow: var(--glow-primary); }
+  }
+
+  @keyframes confetti-burst {
+    0% { 
+      transform: scale(0) rotate(0deg);
+      opacity: 1;
+    }
+    100% { 
+      transform: scale(1) rotate(180deg);
+      opacity: 0;
+    }
+  }
+
+  /* Utility Classes */
+  .animate-milestone-pulse {
+    animation: milestone-pulse 0.8s ease-in-out;
+  }
+
+  .animate-confetti-burst {
+    animation: confetti-burst 1s ease-out forwards;
+  }
+
+  .text-shadow-glow {
+    text-shadow: 0 0 20px currentColor;
+  }
+
+  .border-glow {
+    border-color: hsl(var(--primary));
+    box-shadow: 0 0 20px hsl(var(--primary) / 0.5);
   }
 }

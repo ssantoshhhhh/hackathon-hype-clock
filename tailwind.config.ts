@@ -18,6 +18,10 @@ export default {
 			}
 		},
 		extend: {
+			fontFamily: {
+				mono: ['var(--font-mono)', 'Orbitron', 'monospace'],
+				sans: ['var(--font-sans)', 'Inter', 'sans-serif'],
+			},
 			colors: {
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
@@ -61,7 +65,13 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
-				}
+				},
+				// Cyberpunk colors
+				'neon-cyan': 'hsl(var(--neon-cyan))',
+				'neon-pink': 'hsl(var(--neon-pink))',
+				'neon-orange': 'hsl(var(--neon-orange))',
+				'electric-purple': 'hsl(var(--electric-purple))',
+				'matrix-green': 'hsl(var(--matrix-green))'
 			},
 			borderRadius: {
 				lg: 'var(--radius)',

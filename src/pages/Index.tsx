@@ -1,13 +1,22 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { CountdownTimer } from '@/components/CountdownTimer';
+import { useToast } from '@/hooks/use-toast';
 
 const Index = () => {
+  const { toast } = useToast();
+
+  const handleCountdownComplete = () => {
+    toast({
+      title: "🎉 HACKATHON COMPLETE! 🎉",
+      description: "Time to present your amazing creation to the world!",
+      duration: 10000,
+    });
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
-    </div>
+    <CountdownTimer 
+      duration={24 * 60 * 60 * 1000} // 24 hours
+      onComplete={handleCountdownComplete}
+    />
   );
 };
 
