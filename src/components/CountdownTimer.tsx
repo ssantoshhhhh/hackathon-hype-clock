@@ -29,6 +29,7 @@ export const CountdownTimer = ({
   const [showAnimation, setShowAnimation] = useState(false);
   const [animationType, setAnimationType] = useState<'milestone' | 'hour' | 'final'>('milestone');
   const [clickEffect, setClickEffect] = useState(false);
+  const [startTime] = useState(() => Date.now());
 
   const calculateTimeRemaining = useCallback((endTime: number) => {
     const now = Date.now();
@@ -56,46 +57,49 @@ export const CountdownTimer = ({
   }, []);
 
   useEffect(() => {
-    const endTime = Date.now() + duration;
+    const endTime = startTime + duration;
     
-    const interval = setInterval(() => {
+    const updateTimer = () => {
       const newTime = calculateTimeRemaining(endTime);
+      const prevTime = timeRemaining;
+      
       setTimeRemaining(newTime);
 
       // Check for milestone animations
       const totalMinutes = Math.floor(newTime.total / (1000 * 60));
-      const prevTotalMinutes = Math.floor(timeRemaining.total / (1000 * 60));
+      const prevTotalMinutes = Math.floor(prevTime.total / (1000 * 60));
 
       // Every 30 minutes (milestone)
-      if (totalMinutes % 30 === 0 && totalMinutes !== prevTotalMinutes && totalMinutes > 0) {
+      if (totalMinutes > 0 && totalMinutes % 30 === 0 && totalMinutes !== prevTotalMinutes) {
         setAnimationType('milestone');
         setShowAnimation(true);
         setTimeout(() => setShowAnimation(false), 3000);
       }
 
       // Every hour
-      if (totalMinutes % 60 === 0 && totalMinutes !== prevTotalMinutes && totalMinutes > 0) {
+      if (totalMinutes > 0 && totalMinutes % 60 === 0 && totalMinutes !== prevTotalMinutes) {
         setAnimationType('hour');
         setShowAnimation(true);
         setTimeout(() => setShowAnimation(false), 5000);
       }
 
       // Final hour
-      if (newTime.hours === 0 && timeRemaining.hours > 0) {
+      if (newTime.hours === 0 && prevTime.hours > 0) {
         setAnimationType('final');
         setShowAnimation(true);
         setTimeout(() => setShowAnimation(false), 3000);
       }
 
       // Timer complete
-      if (newTime.total <= 0) {
+      if (newTime.total <= 0 && prevTime.total > 0) {
         setIsActive(false);
         onComplete?.();
       }
-    }, 1000);
+    };
 
+    const interval = setInterval(updateTimer, 1000);
     return () => clearInterval(interval);
-  }, [duration, calculateTimeRemaining, onComplete, timeRemaining.total, timeRemaining.hours]);
+  }, [duration, calculateTimeRemaining, onComplete, startTime, timeRemaining]);
 
   const handleTimerClick = () => {
     setClickEffect(true);
@@ -114,34 +118,52 @@ export const CountdownTimer = ({
     }
     
     if (timeRemaining.hours === 0) {
-      classes += " text-red-500";
+      classes += " animate-warning-pulse";
     }
     
     return classes;
   };
 
+  const getSeparatorClasses = () => {
+    let classes = "timer-separator";
+    
+    if (timeRemaining.hours === 0) {
+      classes += " animate-warning-pulse";
+    }
+    
+    return classes;
+  };
+
+  const getProgressPercentage = () => {
+    return Math.max(0, Math.round(((duration - timeRemaining.total) / duration) * 100));
+  };
+
   return (
-    <div className="relative min-h-screen flex flex-col items-center justify-center cyber-grid">
+    <div className="timer-container cyber-grid">
       <ParticleSystem />
       
       {/* Hackathon Title */}
-      <div className="mb-8 text-center">
-        <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-4">
+      <div className="text-center mb-8 lg:mb-12">
+        <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black mb-4">
           <span className="motivation-text">HACKATHON</span>
         </h1>
-        <p className="text-lg md:text-xl text-muted-foreground uppercase tracking-widest">
+        <p className="text-sm sm:text-base md:text-lg lg:text-xl text-muted-foreground uppercase tracking-[0.3em] font-medium">
           Code • Create • Conquer
         </p>
       </div>
 
       {/* Main Timer Display */}
-      <div className="cyber-card p-8 md:p-12 lg:p-16 mb-8">
-        <div className="flex items-center justify-center space-x-4 md:space-x-8">
+      <div className="cyber-card p-6 sm:p-8 md:p-12 lg:p-16 mb-8 lg:mb-12 max-w-6xl mx-auto">
+        <div className="timer-display">
           {/* Hours */}
           <div className="text-center">
             <div 
               className={getTimerClasses()}
               onClick={handleTimerClick}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => e.key === 'Enter' && handleTimerClick()}
+              aria-label={`${timeRemaining.hours} hours remaining`}
             >
               {formatNumber(timeRemaining.hours)}
             </div>
@@ -149,13 +171,17 @@ export const CountdownTimer = ({
           </div>
 
           {/* Separator */}
-          <div className="timer-separator">:</div>
+          <div className={getSeparatorClasses()}>:</div>
 
           {/* Minutes */}
           <div className="text-center">
             <div 
               className={getTimerClasses()}
               onClick={handleTimerClick}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => e.key === 'Enter' && handleTimerClick()}
+              aria-label={`${timeRemaining.minutes} minutes remaining`}
             >
               {formatNumber(timeRemaining.minutes)}
             </div>
@@ -163,13 +189,17 @@ export const CountdownTimer = ({
           </div>
 
           {/* Separator */}
-          <div className="timer-separator">:</div>
+          <div className={getSeparatorClasses()}>:</div>
 
           {/* Seconds */}
           <div className="text-center">
             <div 
               className={getTimerClasses()}
               onClick={handleTimerClick}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => e.key === 'Enter' && handleTimerClick()}
+              aria-label={`${timeRemaining.seconds} seconds remaining`}
             >
               {formatNumber(timeRemaining.seconds)}
             </div>
@@ -191,27 +221,32 @@ export const CountdownTimer = ({
         timeRemaining={timeRemaining}
       />
 
-      {/* Status Indicator */}
-      <div className="absolute bottom-8 left-8 flex items-center space-x-2">
-        <div className={`w-3 h-3 rounded-full ${isActive ? 'bg-secondary animate-pulse' : 'bg-red-500'}`} />
-        <span className="text-sm text-muted-foreground">
-          {isActive ? 'ACTIVE' : 'COMPLETE'}
-        </span>
-      </div>
+      {/* Status and Info Panel */}
+      <div className="fixed bottom-4 left-4 right-4 flex justify-between items-end z-10">
+        {/* Status Indicator */}
+        <div className="status-indicator">
+          <div className={`w-3 h-3 rounded-full transition-all duration-300 ${
+            isActive ? 'bg-secondary animate-pulse shadow-[0_0_20px_hsl(120_100%_60%/0.8)]' : 'bg-destructive'
+          }`} />
+          <span className="text-sm font-medium">
+            {isActive ? 'ACTIVE' : 'COMPLETE'}
+          </span>
+        </div>
 
-      {/* Timer Info */}
-      <div className="absolute bottom-8 right-8 text-right">
-        <div className="text-sm text-muted-foreground">
-          {timeRemaining.total > 0 ? (
-            <>
-              <div>Time Remaining</div>
-              <div className="text-primary font-mono">
-                {Math.floor(timeRemaining.total / (1000 * 60 * 60))}h {Math.floor((timeRemaining.total % (1000 * 60 * 60)) / (1000 * 60))}m
-              </div>
-            </>
-          ) : (
-            <div className="text-secondary font-bold">🎉 HACKATHON COMPLETE! 🎉</div>
-          )}
+        {/* Progress Info */}
+        <div className="status-indicator">
+          <div className="text-right">
+            {timeRemaining.total > 0 ? (
+              <>
+                <div className="text-xs text-muted-foreground">Progress</div>
+                <div className="text-sm font-mono font-bold text-primary">
+                  {getProgressPercentage()}% Complete
+                </div>
+              </>
+            ) : (
+              <div className="text-sm font-bold text-secondary">🎉 COMPLETE! 🎉</div>
+            )}
+          </div>
         </div>
       </div>
     </div>

@@ -124,13 +124,13 @@ export const MotivationalText = ({ timeRemaining, isActive }: MotivationalTextPr
   };
 
   return (
-    <div className="mb-12">
+    <div className="mb-12 max-w-6xl mx-auto px-4">
       <div className={getTextClasses()}>
         {getMessage()}
       </div>
       
       {/* Progress indicators */}
-      <div className="mt-8 flex justify-center space-x-2">
+      <div className="mt-8 flex justify-center flex-wrap gap-2 max-w-4xl mx-auto">
         {[...Array(24)].map((_, i) => {
           const hoursPassed = 24 - timeRemaining.hours;
           const isCompleted = i < hoursPassed;
@@ -139,32 +139,35 @@ export const MotivationalText = ({ timeRemaining, isActive }: MotivationalTextPr
           return (
             <div
               key={i}
-              className={`w-2 h-2 rounded-full transition-all duration-300 ${
+              className={`hour-indicator ${
                 isCompleted 
-                  ? 'bg-secondary glow-secondary' 
+                  ? 'completed' 
                   : isCurrent 
-                  ? 'bg-primary glow-primary animate-pulse' 
-                  : 'bg-muted'
+                  ? 'current' 
+                  : 'bg-muted/50'
               }`}
+              title={`Hour ${i + 1}${isCompleted ? ' - Complete' : isCurrent ? ' - Current' : ' - Pending'}`}
             />
           );
         })}
       </div>
       
-      {/* Time progress bar */}
-      <div className="mt-4 w-full max-w-md mx-auto">
-        <div className="h-1 bg-muted rounded-full overflow-hidden">
+      {/* Enhanced Progress Bar */}
+      <div className="mt-6 w-full max-w-lg mx-auto">
+        <div className="progress-container">
           <div 
-            className="h-full bg-gradient-to-r from-primary to-secondary transition-all duration-1000 ease-out"
+            className="progress-bar"
             style={{ 
               width: `${Math.max(0, ((24 * 60 * 60 * 1000 - timeRemaining.total) / (24 * 60 * 60 * 1000)) * 100)}%` 
             }}
           />
         </div>
-        <div className="mt-2 text-center">
-          <span className="text-xs text-muted-foreground">
+        <div className="mt-3 flex justify-between text-xs text-muted-foreground">
+          <span>Start</span>
+          <span className="font-mono font-bold text-primary">
             {Math.max(0, Math.round(((24 * 60 * 60 * 1000 - timeRemaining.total) / (24 * 60 * 60 * 1000)) * 100))}% Complete
           </span>
+          <span>Finish</span>
         </div>
       </div>
     </div>
